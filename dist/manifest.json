@@ -1,0 +1,24 @@
+{
+  "name": "Task Streak",
+  "short_name": "TaskStreak",
+  "description": "Social Task Tracking PWA with 3D Pomodoro and Shared Streaks",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#E2D9FC",
+  "theme_color": "#E2D9FC",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ]
+}

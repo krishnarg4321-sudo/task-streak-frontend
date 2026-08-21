@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="40" fill="#E2D9FC"/>
+  <!-- Neo Brutal Card -->
+  <rect x="28" y="28" width="136" height="136" rx="28" fill="#FEF08A" stroke="#000000" stroke-width="8"/>
+  <rect x="36" y="36" width="136" height="136" rx="28" fill="none" stroke="#000000" stroke-width="4" opacity="0.1"/>
+  <!-- Fire / Streak outline -->
+  <path d="M96 46 C96 68, 70 82, 70 108 C70 126, 82 138, 96 138 C110 138, 122 126, 122 108 C122 92, 108 80, 108 66 Z" fill="#FFE2CA" stroke="#000000" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Face Wink -->
+  <circle cx="86" cy="104" r="4" fill="#000000"/>
+  <path d="M102 104 L110 100" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
+  <path d="M92 118 Q96 124 100 118" stroke="#000000" stroke-width="4" fill="none" stroke-linecap="round"/>
+</svg>
