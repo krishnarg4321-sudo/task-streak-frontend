@@ -7,7 +7,7 @@ export default function PomodoroControls({
   onCompleteTask,
   onUpdateTimer,
 }) {
-  const DEFAULT_MINUTES = 60;
+  const DEFAULT_MINUTES = 25;
   const [totalSeconds, setTotalSeconds] = useState(DEFAULT_MINUTES * 60);
   const [remainingSeconds, setRemainingSeconds] = useState(DEFAULT_MINUTES * 60);
   const [isRunning, setIsRunning] = useState(false);
