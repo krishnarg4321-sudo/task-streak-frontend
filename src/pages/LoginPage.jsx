@@ -50,22 +50,6 @@ export default function LoginPage({ onLoginSuccess }) {
     }
   };
 
-  const handleDemoLogin = async () => {
-    setError('');
-    setLoading(true);
-    try {
-      const res = await api.login({
-        emailOrUsername: 'adomin',
-        password: 'password123',
-      });
-      setToken(res.token);
-      onLoginSuccess(res.user);
-    } catch (err) {
-      setError('Demo login failed: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#E2D9FC] flex flex-col items-center justify-center p-4 selection:bg-[#FEF08A]">
@@ -178,7 +162,7 @@ export default function LoginPage({ onLoginSuccess }) {
             <input
               type={isSignUp ? 'email' : 'text'}
               required
-              placeholder={isSignUp ? 'alex@example.com' : 'adomin or user@example.com'}
+              placeholder={isSignUp ? 'alex@example.com' : 'username or email'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3.5 py-2 text-sm font-bold bg-zinc-50 border-2 border-black rounded-xl focus:outline-none focus:bg-white shadow-[2px_2px_0px_#000]"
@@ -217,18 +201,6 @@ export default function LoginPage({ onLoginSuccess }) {
             )}
           </button>
         </form>
-
-        {/* Demo Fast Login */}
-        <div className="mt-4 pt-4 border-t-2 border-black/15 text-center">
-          <p className="text-[11px] font-bold text-black/60 mb-2">Want to test instantly?</p>
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            className="w-full py-2.5 bg-[#BBF7D0] hover:bg-[#86EFAC] text-black font-extrabold text-xs border-2 border-black rounded-xl shadow-[2.5px_2.5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition"
-          >
-            Instant Demo Login (as Adomin)
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -35,7 +35,7 @@ export default function Header({
           <div>
             <div className="flex items-center gap-1.5">
               <h1 className="font-extrabold text-xl sm:text-2xl text-black tracking-tight leading-tight">
-                Hi {user?.name?.split(' ')[0] || 'Adomin'}
+                Hi {user?.name?.split(' ')[0] || 'Friend'}
               </h1>
             </div>
             <p className="text-xs font-bold text-black/60">{getGreeting()}</p>

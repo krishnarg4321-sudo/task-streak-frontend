@@ -1,6 +1,6 @@
 import { queueOfflineRequest, flushOfflineQueue } from './offlineSync';
 
-const BASE_URL = import.meta.env.VITE_API_URL || '';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://task-streak-backend-production.up.railway.app';
 
 let authToken = localStorage.getItem('taskstreak_token') || '';
 

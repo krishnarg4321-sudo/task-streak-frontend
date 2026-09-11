@@ -44,7 +44,7 @@ export default function TaskCreationPage({
             className="w-full sm:w-auto neo-btn px-6 py-3.5 bg-black text-white text-sm font-black flex items-center justify-center gap-2 hover:bg-zinc-800 shadow-neo-lg active:translate-x-0.5 active:translate-y-0.5"
           >
             <Plus className="w-5 h-5 stroke-[3]" />
-            <span>+ Create New Sticky</span>
+            <span>Create New Sticky</span>
           </button>
         </div>
       </div>
@@ -63,13 +63,7 @@ export default function TaskCreationPage({
 
         {tasks.length === 0 ? (
           <div className="neo-box p-10 bg-white border-2 border-black rounded-neo-lg text-center">
-            <p className="text-sm font-extrabold text-black/60 mb-3">No sticky notes created yet today.</p>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="neo-btn px-5 py-2.5 bg-[#BBF7D0] text-black font-black text-xs"
-            >
-              + Create First Task
-            </button>
+            <p className="text-sm font-extrabold text-black/60">No sticky notes created yet today.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
