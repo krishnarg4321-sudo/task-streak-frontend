@@ -16,7 +16,7 @@ export default function HomePage({
   const [filterCategory, setFilterCategory] = useState('All');
   const [showAllTasksModal, setShowAllTasksModal] = useState(false);
 
-  const categories = ['All', 'Today', 'Focus', 'Important'];
+  const categories = ['All', 'Focus'];
 
   // Handle task status update with celebration trigger
   const handleTaskStatus = (taskId, newStatus) => {
@@ -26,14 +26,21 @@ export default function HomePage({
     onStatusChange(taskId, newStatus);
   };
 
+  const filteredTasks = todayTasks.filter((t) => {
+    if (filterCategory === 'Focus') {
+      return t.status === 'IN_PROGRESS' || (t.timeSpentSeconds && t.timeSpentSeconds > 0);
+    }
+    return true;
+  });
+
   const completedCount = todayTasks.filter((t) => t.status === 'COMPLETED').length;
   const partialCount = todayTasks.filter((t) => t.status === 'PARTIALLY_COMPLETED').length;
   const notCompletedCount = todayTasks.filter(
     (t) => t.status === 'NOT_COMPLETED' || t.status === 'IN_PROGRESS'
   ).length;
 
-  const displayStickyTasks = todayTasks.slice(0, 3);
-  const hasMoreTasks = todayTasks.length > 3;
+  const displayStickyTasks = filteredTasks.slice(0, 3);
+  const hasMoreTasks = filteredTasks.length > 3;
 
   return (
     <div className="space-y-5 animate-fadeIn">

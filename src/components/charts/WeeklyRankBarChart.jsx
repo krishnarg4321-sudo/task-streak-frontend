@@ -54,9 +54,14 @@ export default function WeeklyRankBarChart({ ranking = [] }) {
                     />
                   </div>
                   <div>
-                    <h4 className="font-black text-sm text-black leading-tight">
-                      {entry.name || entry.username}
-                    </h4>
+                    <div className="flex items-center gap-1.5">
+                      <h4 className="font-black text-sm text-black leading-tight">
+                        {entry.name || entry.username}
+                      </h4>
+                      <span className="px-1.5 py-0.5 bg-[#DDD6FE] rounded-md border border-black text-[10px] font-black shadow-[1px_1px_0px_#000]">
+                        Lv.{entry.level || 1}
+                      </span>
+                    </div>
                     <span className="text-[11px] font-semibold text-black/60">@{entry.username}</span>
                   </div>
                 </div>

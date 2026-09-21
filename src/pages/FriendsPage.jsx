@@ -76,6 +76,42 @@ export default function FriendsPage({ onOpenGroupProgress, onOpenFriendDetail })
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleNudgeFriend = async (friendId, friendName, e) => {
+    e.stopPropagation();
+    try {
+      await api.nudgeFriend(friendId);
+      setActionMessage(`⚡ Focus nudge sent to ${friendName}!`);
+    } catch (err) {
+      setActionMessage(`Error sending nudge: ${err.message}`);
+    }
+  };
+
+  const getStatusBadge = (friend) => {
+    const st = friend.activeStatus || (friend.online ? 'ACTIVE' : 'OFFLINE');
+    if (st === 'ACTIVE') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-black bg-[#BBF7D0] text-emerald-900 text-[10px] font-black shadow-[1px_1px_0px_#000]">
+          <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+          Active Now
+        </span>
+      );
+    }
+    if (st === 'AWAY') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-black bg-[#FEF08A] text-amber-900 text-[10px] font-black shadow-[1px_1px_0px_#000]">
+          <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+          Away
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-black bg-zinc-200 text-zinc-700 text-[10px] font-black shadow-[1px_1px_0px_#000]">
+        <span className="w-2 h-2 rounded-full bg-zinc-500"></span>
+        Offline
+      </span>
+    );
+  };
+
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Header with Group Progress CTA */}
@@ -180,23 +216,27 @@ export default function FriendsPage({ onOpenGroupProgress, onOpenFriendDetail })
                 onClick={() => onOpenFriendDetail && onOpenFriendDetail(f.userId)}
                 className="p-3.5 rounded-2xl border-2 border-black bg-white hover:bg-zinc-50 transition cursor-pointer shadow-[3.5px_3.5px_0px_#000] flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-2xl border-2 border-black overflow-hidden bg-[#FED7AA] shadow-[1.5px_1.5px_0px_#000]">
+                    <div className="w-11 h-11 rounded-2xl border-2 border-black overflow-hidden bg-[#FED7AA] shadow-[1.5px_1.5px_0px_#000]">
                       <img src={f.profilePictureUrl || '/avatars/avatar-1.svg'} alt={f.name} className="w-full h-full object-cover" />
                     </div>
                     <div>
-                      <h4 className="font-black text-sm text-black leading-tight">{f.name}</h4>
-                      <span className="text-[11px] font-semibold text-black/60">@{f.username}</span>
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="font-black text-sm text-black leading-tight">{f.name}</h4>
+                        <span className="px-1.5 py-0.5 bg-[#FEF08A] rounded-md border border-black text-[9px] font-black">
+                          Lv.{f.level || 1}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-semibold text-black/60 block">@{f.username}</span>
+                      <span className="text-[10px] font-bold text-black/40">{f.levelTitle || 'Novice Grinder'}</span>
                     </div>
                   </div>
 
-                  {/* Online / Offline Label */}
-                  <span className={`px-2 py-0.5 rounded-full border border-black text-[10px] font-black ${
-                    f.online ? 'bg-[#BBF7D0] text-emerald-900' : 'bg-zinc-200 text-zinc-700'
-                  }`}>
-                    {f.online ? 'ONLINE' : 'OFFLINE'}
-                  </span>
+                  {/* Online / Away / Offline Status Badge */}
+                  <div>
+                    {getStatusBadge(f)}
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-black/10 text-xs">
@@ -210,17 +250,33 @@ export default function FriendsPage({ onOpenGroupProgress, onOpenFriendDetail })
                   </span>
                 </div>
 
-                {f.status === 'PENDING' && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAcceptRequest(f.friendshipId);
-                    }}
-                    className="mt-2 w-full py-1.5 bg-[#BBF7D0] text-black text-xs font-black rounded-lg border-2 border-black hover:bg-[#86EFAC]"
-                  >
-                    Accept Friend Request
-                  </button>
-                )}
+                {/* Bottom Actions: Nudge & Request status */}
+                <div className="mt-2.5 pt-2 border-t border-black/10 flex items-center gap-2">
+                  {f.status === 'ACCEPTED' ? (
+                    <button
+                      onClick={(e) => handleNudgeFriend(f.userId, f.name, e)}
+                      className="w-full py-1.5 bg-[#FEF08A] hover:bg-yellow-300 text-black text-xs font-black rounded-xl border-2 border-black shadow-[1.5px_1.5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 flex items-center justify-center gap-1"
+                    >
+                      <span>⚡ Nudge to Work</span>
+                    </button>
+                  ) : f.status === 'PENDING' ? (
+                    f.isIncoming ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAcceptRequest(f.friendshipId);
+                        }}
+                        className="w-full py-1.5 bg-[#BBF7D0] text-black text-xs font-black rounded-xl border-2 border-black hover:bg-[#86EFAC] shadow-[1.5px_1.5px_0px_#000]"
+                      >
+                        Accept Friend Request
+                      </button>
+                    ) : (
+                      <div className="w-full py-1 text-center bg-zinc-100 rounded-xl border border-black text-[11px] font-extrabold text-black/60">
+                        Request Sent (Pending)
+                      </div>
+                    )
+                  ) : null}
+                </div>
               </div>
             ))}
           </div>

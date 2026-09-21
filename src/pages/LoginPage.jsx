@@ -1,13 +1,6 @@
-import React, { useState } from 'react';
-import { Sparkles, ArrowRight, UserPlus, LogIn, Check } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Sparkles, ArrowRight, UserPlus, LogIn, Camera, Upload, Check } from 'lucide-react';
 import { api, setToken } from '../api/client';
-
-const AVATARS = [
-  '/avatars/avatar-1.svg',
-  '/avatars/avatar-2.svg',
-  '/avatars/avatar-3.svg',
-  '/avatars/avatar-4.svg',
-];
 
 export default function LoginPage({ onLoginSuccess }) {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -15,9 +8,29 @@ export default function LoginPage({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0]);
+  const [profilePicture, setProfilePicture] = useState('/avatars/avatar-1.svg');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const signupFileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Profile image must be less than 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64Data = event.target?.result;
+      if (base64Data) {
+        setProfilePicture(base64Data);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,17 +40,17 @@ export default function LoginPage({ onLoginSuccess }) {
     try {
       if (isSignUp) {
         const res = await api.signup({
-          name,
-          username,
-          email,
+          name: name.trim(),
+          username: username.trim().toLowerCase(),
+          email: email.trim().toLowerCase(),
           password,
-          profilePictureUrl: selectedAvatar,
+          profilePictureUrl: profilePicture,
         });
         setToken(res.token);
         onLoginSuccess(res.user);
       } else {
         const res = await api.login({
-          emailOrUsername: email,
+          emailOrUsername: email.trim().toLowerCase(),
           password,
         });
         setToken(res.token);
@@ -49,7 +62,6 @@ export default function LoginPage({ onLoginSuccess }) {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-[#E2D9FC] flex flex-col items-center justify-center p-4 selection:bg-[#FEF08A]">
@@ -91,7 +103,7 @@ export default function LoginPage({ onLoginSuccess }) {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-[#FBCFE8] border-2 border-black rounded-xl text-xs font-extrabold text-black">
+          <div className="mb-4 p-3 bg-[#FBCFE8] border-2 border-black rounded-xl text-xs font-extrabold text-black shadow-[2px_2px_0px_#000]">
             {error}
           </div>
         )}
@@ -99,30 +111,45 @@ export default function LoginPage({ onLoginSuccess }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {isSignUp && (
             <>
-              {/* Avatar Selector */}
-              <div>
-                <label className="block text-xs font-black uppercase tracking-wider mb-2 text-black/70">
-                  Select Profile Avatar
+              {/* Photo Upload for Signup */}
+              <div className="flex flex-col items-center gap-2 pb-2">
+                <label className="block text-xs font-black uppercase tracking-wider text-black/70">
+                  Profile Photo (Gallery / Camera)
                 </label>
-                <div className="flex items-center justify-around gap-2">
-                  {AVATARS.map((av, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setSelectedAvatar(av)}
-                      className={`relative w-12 h-12 rounded-2xl border-2 border-black overflow-hidden bg-[#FED7AA] transition-all ${
-                        selectedAvatar === av ? 'scale-110 shadow-[3px_3px_0px_#000] ring-2 ring-black' : 'opacity-70 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={av} alt={`Avatar ${idx + 1}`} className="w-full h-full object-cover" />
-                      {selectedAvatar === av && (
-                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                          <Check className="w-4 h-4 text-white stroke-[3]" />
-                        </div>
-                      )}
-                    </button>
-                  ))}
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-2xl border-2 border-black bg-[#FFE2CA] shadow-[2.5px_2.5px_0px_#000] overflow-hidden flex items-center justify-center">
+                    <img
+                      src={profilePicture}
+                      alt="Profile preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = '/avatars/avatar-1.svg';
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => signupFileInputRef.current?.click()}
+                    className="absolute -bottom-1 -right-1 p-1.5 bg-[#FEF08A] hover:bg-amber-300 text-black rounded-xl border-2 border-black shadow-[1.5px_1.5px_0px_#000]"
+                    title="Upload Photo"
+                  >
+                    <Camera className="w-3.5 h-3.5 stroke-[2.5]" />
+                  </button>
+                  <input
+                    ref={signupFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
                 </div>
+                <button
+                  type="button"
+                  onClick={() => signupFileInputRef.current?.click()}
+                  className="text-[11px] font-black underline text-black/80 hover:text-black"
+                >
+                  Choose Custom Image
+                </button>
               </div>
 
               <div>

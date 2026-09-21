@@ -58,7 +58,6 @@ export default function TaskCreationPage({
               Today's Created Sticky Grid ({tasks.length})
             </h3>
           </div>
-          <span className="text-xs font-bold text-black/60">2-Column Layout</span>
         </div>
 
         {tasks.length === 0 ? (

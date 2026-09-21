@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taskstreak-v2'; // Bumped cache version
+const CACHE_NAME = 'taskstreak-v3'; // Bumped cache version
 const STATIC_ASSETS = [
   '/',
   '/index.html',

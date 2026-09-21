@@ -98,6 +98,7 @@ export const api = {
   getFriends: () => api.get('/api/friends'),
   sendFriendRequest: (usernameOrEmail) => api.post('/api/friends/request', { usernameOrEmail }),
   acceptFriendRequest: (friendshipId) => api.post('/api/friends/accept', { friendshipId }),
+  nudgeFriend: (friendId) => api.post(`/api/friends/${friendId}/nudge`, {}),
   getFriendProgress: (friendId) => api.get(`/api/friends/${friendId}/progress`),
 
   // Groups & Streaks

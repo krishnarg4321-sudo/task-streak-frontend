@@ -69,28 +69,28 @@ export default function HistoryPage() {
             Today's Quick Summary
           </span>
           <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-white border border-black shadow-[1px_1px_0px_#000]">
-            {history?.todaySummary?.completionRate || 0}% Completion
+            {Math.round(history?.todaySummary?.completionRate || 0)}% Completion
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="p-3 bg-white border-2 border-black rounded-xl text-center shadow-[2px_2px_0px_#000]">
-            <div className="text-xl font-black text-black">{history?.todaySummary?.total || 0}</div>
+            <div className="text-xl font-black text-black">{Math.round(history?.todaySummary?.total || 0)}</div>
             <div className="text-[10px] font-extrabold text-black/60 uppercase">Total Tasks</div>
           </div>
           <div className="p-3 bg-[#BBF7D0] border-2 border-black rounded-xl text-center shadow-[2px_2px_0px_#000]">
-            <div className="text-xl font-black text-black">{history?.todaySummary?.completed || 0}</div>
+            <div className="text-xl font-black text-black">{Math.round(history?.todaySummary?.completed || 0)}</div>
             <div className="text-[10px] font-extrabold text-black/60 uppercase">Completed</div>
           </div>
           <div className="p-3 bg-[#FEF08A] border-2 border-black rounded-xl text-center shadow-[2px_2px_0px_#000]">
             <div className="text-xl font-black text-black">
-              {formatDuration(history?.todaySummary?.timeSpentSeconds)}
+              {formatDuration(Math.round(history?.todaySummary?.timeSpentSeconds || 0))}
             </div>
             <div className="text-[10px] font-extrabold text-black/60 uppercase">Time Spent</div>
           </div>
           <div className="p-3 bg-[#BAE6FD] border-2 border-black rounded-xl text-center shadow-[2px_2px_0px_#000]">
             <div className="text-xl font-black text-black">
-              {formatDuration(history?.averageTimeSpentSeconds)}
+              {formatDuration(Math.round(history?.averageTimeSpentSeconds || 0))}
             </div>
             <div className="text-[10px] font-extrabold text-black/60 uppercase">Avg / Task</div>
           </div>
@@ -123,35 +123,49 @@ export default function HistoryPage() {
           <p className="text-xs font-bold text-black/50 py-4 text-center">No tasks recorded in this period.</p>
         ) : (
           <div className="space-y-2.5">
-            {history.tasks.map((task) => (
-              <div
-                key={task.id}
-                className="p-3 rounded-xl border-2 border-black bg-zinc-50 flex items-center justify-between gap-3 hover:bg-white transition shadow-[2px_2px_0px_#000]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl border-2 border-black bg-[#FED7AA] flex items-center justify-center font-black text-xs">
-                    {task.color ? task.color.substring(0, 1).toUpperCase() : 'T'}
+            {history.tasks.map((task) => {
+              const isDone = task.status === 'COMPLETED';
+              const isPartial = task.status === 'PARTIALLY_COMPLETED' || task.status === 'IN_PROGRESS';
+              
+              return (
+                <div
+                  key={task.id}
+                  className="p-3 rounded-xl border-2 border-black bg-zinc-50 flex items-center justify-between gap-3 hover:bg-white transition shadow-[2px_2px_0px_#000]"
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Checklist status logo */}
+                    <div className={`w-9 h-9 rounded-xl border-2 border-black flex items-center justify-center shadow-[1.5px_1.5px_0px_#000] ${
+                      isDone ? 'bg-[#BBF7D0]' : isPartial ? 'bg-[#FED7AA]' : 'bg-zinc-200'
+                    }`}>
+                      {isDone ? (
+                        <CheckCircle2 className="w-5 h-5 stroke-[2.5] text-emerald-800" />
+                      ) : isPartial ? (
+                        <Clock className="w-5 h-5 stroke-[2.5] text-amber-800" />
+                      ) : (
+                        <AlertCircle className="w-5 h-5 stroke-[2.5] text-zinc-600" />
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-black text-xs text-black">{task.name}</h4>
+                      <span className="text-[10px] font-bold text-black/50">{task.date}</span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-black text-xs text-black">{task.name}</h4>
-                    <span className="text-[10px] font-bold text-black/50">{task.date}</span>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-3">
-                  <span className={`px-2 py-0.5 rounded-lg border border-black text-[10px] font-black ${
-                    task.status === 'COMPLETED' ? 'bg-[#BBF7D0]' : 'bg-[#FED7AA]'
-                  }`}>
-                    {task.status}
-                  </span>
-                  <div className="text-right">
-                    <span className="text-xs font-black text-black">
-                      {formatDuration(task.timeSpentSeconds)}
+                  <div className="flex items-center gap-3">
+                    <span className={`px-2 py-0.5 rounded-lg border border-black text-[10px] font-black ${
+                      isDone ? 'bg-[#BBF7D0]' : isPartial ? 'bg-[#FED7AA]' : 'bg-zinc-200'
+                    }`}>
+                      {task.status}
                     </span>
+                    <div className="text-right">
+                      <span className="text-xs font-black text-black">
+                        {formatDuration(task.timeSpentSeconds)}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
