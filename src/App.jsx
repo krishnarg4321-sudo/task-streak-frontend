@@ -11,6 +11,7 @@ import FriendsPage from './pages/FriendsPage';
 import GroupProgressPage from './pages/GroupProgressPage';
 import NotificationCenter from './components/notifications/NotificationCenter';
 import Toast from './components/notifications/Toast';
+import { subscribeUserToPush } from './utils/notifications';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -69,9 +70,24 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const handleSwMessage = (event) => {
+      if (event.data?.type === 'OPEN_TASK' && event.data.taskId) {
+        setSelectedTaskId(event.data.taskId);
+        setIsProfileOpen(false);
+        setIsGroupProgressOpen(false);
+      }
+    };
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleSwMessage);
+      return () => navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+    }
+  }, []);
+
+  useEffect(() => {
     if (user) {
       refreshData();
       fetchNotifications();
+      subscribeUserToPush(api);
     }
   }, [user]);
 

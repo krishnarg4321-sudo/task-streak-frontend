@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taskstreak-v3'; // Bumped cache version
+const CACHE_NAME = 'taskstreak-v4'; // Bumped cache version
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -21,6 +21,63 @@ self.addEventListener('activate', (event) => {
     })
   );
   self.clients.claim();
+});
+
+// Real Web Push Background Event Listener
+self.addEventListener('push', (event) => {
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data = { title: 'Task Streak', body: event.data.text() };
+    }
+  }
+
+  const title = data.title || 'Task Streak';
+  const bodyText = data.body || data.message || 'You have a new task notification!';
+  const extraData = data.data || {};
+
+  const options = {
+    body: bodyText,
+    icon: data.icon || '/icons/icon-192.svg',
+    badge: data.badge || '/icons/icon-192.svg',
+    vibrate: [200, 100, 200],
+    data: {
+      url: extraData.url || '/',
+      taskId: extraData.taskId,
+      ...extraData,
+    },
+    tag: data.tag || 'taskstreak-alert-' + Date.now(),
+    renotify: true,
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Push Notification Click Action
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      for (const client of windowClients) {
+        if (client.url && 'focus' in client) {
+          if (event.notification.data?.taskId) {
+            client.postMessage({
+              type: 'OPEN_TASK',
+              taskId: event.notification.data.taskId,
+            });
+          }
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
 });
 
 self.addEventListener('fetch', (event) => {
@@ -60,7 +117,7 @@ self.addEventListener('fetch', (event) => {
           const clone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
-          return networkResponse;
+        return networkResponse;
       }).catch(() => {/* Offline fallback */});
 
       return cachedResponse || fetchPromise;

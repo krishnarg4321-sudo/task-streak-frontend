@@ -108,10 +108,14 @@ export const api = {
   getGroupProgress: (groupId) => api.get(`/api/groups/${groupId}/progress`),
   getWeeklyStreaks: (groupId) => api.get(`/api/streaks/${groupId}/weekly`),
 
-  // Notifications
+  // Notifications & Web Push
   getNotifications: () => api.get('/api/notifications'),
   markNotificationRead: (id) => api.post('/api/notifications/read', { id }),
   markAllNotificationsRead: () => api.post('/api/notifications/read', {}),
+  getVapidPublicKey: () => api.get('/api/push/public-key'),
+  subscribePush: (subData) => api.post('/api/push/subscribe', subData, false),
+  unsubscribePush: (endpoint) => api.post('/api/push/unsubscribe', { endpoint }, false),
+  testPush: (payload) => api.post('/api/push/test', payload || {}, false),
 
   // Flush offline queue
   syncOffline: (onSynced) => flushOfflineQueue(api, onSynced)

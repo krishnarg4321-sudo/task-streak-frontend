@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Calendar, CheckCircle2, Flame, BarChart3, TrendingUp, Timer } from 'lucide-react';
+import { Clock, Calendar, CheckCircle2, Flame, BarChart3, TrendingUp, Timer, AlertCircle } from 'lucide-react';
 import { api } from '../api/client';
 import TrendLineChart from '../components/charts/TrendLineChart';
 
@@ -32,6 +32,13 @@ export default function HistoryPage() {
     if (m > 0) return `${m}m`;
     return `${s}s`;
   };
+
+  // Safe fallback today summary calculations
+  const todayTotal = history?.todaySummary?.total ?? (history?.tasks?.length || 0);
+  const todayCompleted = history?.todaySummary?.completed ?? 0;
+  const todayTimeSpent = history?.todaySummary?.timeSpentSeconds ?? 0;
+  const todayAvgTime = history?.todaySummary?.averageTimeSpentSeconds ?? (history?.averageTimeSpentSeconds || 0);
+  const todayRate = history?.todaySummary?.completionRate ?? (todayTotal > 0 ? Math.round((todayCompleted / todayTotal) * 100) : 0);
 
   return (
     <div className="space-y-5 animate-fadeIn">
@@ -69,28 +76,28 @@ export default function HistoryPage() {
             Today's Quick Summary
           </span>
           <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-white border border-black shadow-[1px_1px_0px_#000]">
-            {Math.round(history?.todaySummary?.completionRate || 0)}% Completion
+            {Math.round(todayRate)}% Completion
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="p-3 bg-white border-2 border-black rounded-xl text-center shadow-[2px_2px_0px_#000]">
-            <div className="text-xl font-black text-black">{Math.round(history?.todaySummary?.total || 0)}</div>
+            <div className="text-xl font-black text-black">{Math.round(todayTotal)}</div>
             <div className="text-[10px] font-extrabold text-black/60 uppercase">Total Tasks</div>
           </div>
           <div className="p-3 bg-[#BBF7D0] border-2 border-black rounded-xl text-center shadow-[2px_2px_0px_#000]">
-            <div className="text-xl font-black text-black">{Math.round(history?.todaySummary?.completed || 0)}</div>
+            <div className="text-xl font-black text-black">{Math.round(todayCompleted)}</div>
             <div className="text-[10px] font-extrabold text-black/60 uppercase">Completed</div>
           </div>
           <div className="p-3 bg-[#FEF08A] border-2 border-black rounded-xl text-center shadow-[2px_2px_0px_#000]">
             <div className="text-xl font-black text-black">
-              {formatDuration(Math.round(history?.todaySummary?.timeSpentSeconds || 0))}
+              {formatDuration(Math.round(todayTimeSpent))}
             </div>
             <div className="text-[10px] font-extrabold text-black/60 uppercase">Time Spent</div>
           </div>
           <div className="p-3 bg-[#BAE6FD] border-2 border-black rounded-xl text-center shadow-[2px_2px_0px_#000]">
             <div className="text-xl font-black text-black">
-              {formatDuration(Math.round(history?.averageTimeSpentSeconds || 0))}
+              {formatDuration(Math.round(todayAvgTime))}
             </div>
             <div className="text-[10px] font-extrabold text-black/60 uppercase">Avg / Task</div>
           </div>
@@ -115,18 +122,20 @@ export default function HistoryPage() {
             </h3>
           </div>
           <span className="text-[11px] font-extrabold text-black/60">
-            {history?.tasks?.length || 0} Records
+            {history?.tasks?.length || 0} Records ({range === 'week' ? 'Last 7 Days' : 'Last 30 Days'})
           </span>
         </div>
 
-        {(!history?.tasks || history.tasks.length === 0) ? (
+        {loading ? (
+          <p className="text-xs font-bold text-black/50 py-4 text-center animate-pulse">Loading history data...</p>
+        ) : (!history?.tasks || history.tasks.length === 0) ? (
           <p className="text-xs font-bold text-black/50 py-4 text-center">No tasks recorded in this period.</p>
         ) : (
           <div className="space-y-2.5">
             {history.tasks.map((task) => {
               const isDone = task.status === 'COMPLETED';
               const isPartial = task.status === 'PARTIALLY_COMPLETED' || task.status === 'IN_PROGRESS';
-              
+
               return (
                 <div
                   key={task.id}

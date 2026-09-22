@@ -11,6 +11,8 @@ export default function TrendLineChart({ data = [], title = 'Last 7 Days Progres
     );
   }
 
+  const isMonthly = data.length > 7;
+
   return (
     <div className="neo-box p-5 bg-white">
       <div className="flex items-center justify-between mb-3">
@@ -21,11 +23,11 @@ export default function TrendLineChart({ data = [], title = 'Last 7 Days Progres
           </h3>
         </div>
         <span className="text-[11px] font-extrabold bg-[#DDD6FE] px-2.5 py-0.5 rounded-full border border-black shadow-[1.5px_1.5px_0px_#000]">
-          Weekly Curve
+          {isMonthly ? '30-Day Curve' : '7-Day Curve'}
         </span>
       </div>
 
-      <div className="w-full h-44 sm:h-52">
+      <div className="w-full h-48 sm:h-56">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
@@ -36,11 +38,18 @@ export default function TrendLineChart({ data = [], title = 'Last 7 Days Progres
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
             <XAxis
-              dataKey="dayOfWeek"
+              dataKey={isMonthly ? "date" : "dayOfWeek"}
               stroke="#000000"
-              fontSize={11}
+              fontSize={10}
               fontWeight="bold"
               tickLine={false}
+              interval={isMonthly ? Math.ceil(data.length / 6) : 0}
+              tickFormatter={(val) => {
+                if (isMonthly && val && val.length >= 10) {
+                  return val.substring(5); // MM-DD
+                }
+                return val;
+              }}
             />
             <YAxis
               stroke="#000000"
@@ -60,6 +69,7 @@ export default function TrendLineChart({ data = [], title = 'Last 7 Days Progres
                 fontSize: '12px',
               }}
               formatter={(val) => [`${val}%`, 'Completion']}
+              labelFormatter={(label) => `Date: ${label}`}
             />
             <Area
               type="monotone"
@@ -68,7 +78,7 @@ export default function TrendLineChart({ data = [], title = 'Last 7 Days Progres
               strokeWidth={3}
               fillOpacity={1}
               fill="url(#colorRate)"
-              dot={{ r: 4, stroke: '#000000', strokeWidth: 2, fill: '#FEF08A' }}
+              dot={{ r: isMonthly ? 2 : 4, stroke: '#000000', strokeWidth: 1.5, fill: '#FEF08A' }}
               activeDot={{ r: 6, stroke: '#000000', strokeWidth: 2, fill: '#BBF7D0' }}
             />
           </AreaChart>
